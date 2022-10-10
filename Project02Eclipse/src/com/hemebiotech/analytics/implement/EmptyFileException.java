@@ -1,5 +1,10 @@
 package com.hemebiotech.analytics.implement;
-
-public class EmptyFileException {
+/**
+ * Class to manage the empties files
+ * 
+ * @author steve
+ *
+ */
+public class EmptyFileException extends Exception{
 
 }
