@@ -1,43 +1,42 @@
 package com.hemebiotech.analytics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.util.List;
+import java.util.Map;
 
+import com.hemebiotech.analytics.implement.AlphabeticallySort;
+import com.hemebiotech.analytics.implement.NumberOfOccurrencesCounter;
+import com.hemebiotech.analytics.implement.ReadSymptomDataFromFile;
+import com.hemebiotech.analytics.implement.ResultWriter;
+import com.hemebiotech.analytics.interfaces.IAlphabeticallySort;
+import com.hemebiotech.analytics.interfaces.INumberOfOccurrencesCounter;
+import com.hemebiotech.analytics.interfaces.IResultWriter;
+import com.hemebiotech.analytics.interfaces.ISymptomReader;
+/**
+ * The main class of the application. The launch will produce the file of results.
+ * 
+ * 
+ * @author steve
+ *
+ */
 public class AnalyticsCounter {
-	private static int headacheCount = 0;	// initialize to 0
-	private static int rashCount = 0;		// initialize to 0
-	private static int pupilCount = 0;		// initialize to 0
-	
-	public static void main(String args[]) throws Exception {
-		// first get input
-		BufferedReader reader = new BufferedReader (new FileReader("symptoms.txt"));
-		String line = reader.readLine();
-
-		int i = 0;	// set i to 0
-		int headCount = 0;	// counts headaches
-		while (line != null) {
-			i++;	// increment i
-			System.out.println("symptom from file: " + line);
-			if (line.equals("headache")) {
-				headCount++;
-				System.out.println("number of headaches: " + headCount);
-			}
-			else if (line.equals("rush")) {
-				rashCount++;
-			}
-			else if (line.contains("pupils")) {
-				pupilCount++;
-			}
-
-			line = reader.readLine();	// get another symptom
-		}
 		
-		// next generate output
-		FileWriter writer = new FileWriter ("result.out");
-		writer.write("headache: " + headacheCount + "\n");
-		writer.write("rash: " + rashCount + "\n");
-		writer.write("dialated pupils: " + pupilCount + "\n");
-		writer.close();
+	public static void main(String args[]) {
+			
+		ISymptomReader fileReader = new ReadSymptomDataFromFile("symptoms.txt");
+		
+		// put the symptoms in a list
+		List<String> rawListOfSymptoms = fileReader.getSymptoms();
+		
+		// transfer in a map the symptoms by counting them and removing duplicates
+		INumberOfOccurrencesCounter occurrencesCounter = new NumberOfOccurrencesCounter();
+		Map<String,Integer> unorderedCountedSymptomMap =occurrencesCounter.numberOfOccurrences(rawListOfSymptoms);
+		
+		// sort the map alphabetically
+		IAlphabeticallySort as = new AlphabeticallySort();
+		Map<String,Integer> orderedCountedSymptomMap = as.alphabeticallySort(unorderedCountedSymptomMap);
+		
+		IResultWriter resultWriter = new ResultWriter(orderedCountedSymptomMap,"result.out");
+		resultWriter.resultWriter();
+		
 	}
 }
